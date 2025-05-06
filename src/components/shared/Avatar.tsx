@@ -1,7 +1,7 @@
 import { FC, ReactNode } from "react"
 
 interface AvatarInterface {
-    title?: string
+    title?: string | null
     subtitle?: ReactNode
     image?: string
     titleColor?: string
