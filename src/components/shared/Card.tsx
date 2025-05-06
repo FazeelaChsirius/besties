@@ -1,17 +1,22 @@
 import { FC, ReactElement } from 'react'
 
 interface CardInterface {
-  children?: string
+  children?: ReactElement
   title?: string
   footer?: ReactElement
+  divider?: boolean
 }
 
-const Card: FC<CardInterface> = ({children, title, footer}) => {
+const Card: FC<CardInterface> = ({children, title, footer, divider=false}) => {
   return (
-    <div className='bg-white shadow-lg p-8 rounded-lg border border-gray-100 space-y-2'>
+    <div className='bg-white shadow-lg px-5 py-4 rounded-lg border border-gray-100 space-y-2'>
       {
         title &&
         <h1 className='text-lg font-semibold'>{title}</h1>
+      }
+      {
+        divider &&
+        <div className='border-b border-b-gray-100 -mx-5 my-4'/>
       }
       {
         children &&
