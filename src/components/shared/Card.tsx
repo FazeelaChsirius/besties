@@ -1,8 +1,8 @@
-import { FC, ReactElement } from 'react'
+import { FC, ReactElement, ReactNode } from 'react'
 
 interface CardInterface {
   children?: ReactElement
-  title?: string
+  title?: ReactNode
   footer?: ReactElement
   divider?: boolean
 }

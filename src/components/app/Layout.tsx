@@ -19,7 +19,7 @@ const Layout = () => {
             icon: 'ri-home-9-line'
         },
         {
-            href: '/app/posts',
+            href: '/app/my-posts',
             label: 'my posts',
             icon: 'ri-chat-smile-3-line'
         },
@@ -29,6 +29,12 @@ const Layout = () => {
             icon: 'ri-group-line'
         }
     ]
+    const getPathname = (path: string) => {
+        const firstPath = path.split("/").pop()
+        const finalPath = firstPath?.split("-").join(" ")
+        return finalPath
+    }
+
     return (
         <div className="min-h-screen">
             <aside className="bg-white fixed h-full top-0 left-0 p-8 overflow-auto" style={{width: leftAsideSize}}>
@@ -62,7 +68,17 @@ const Layout = () => {
                 </div>
             </aside>
             <section className="py-8 px-1" style={sectionDimention}>
-                <Card title={pathname.split("/").pop()} divider >
+                <Card 
+                    title = {
+                        <div className="flex items-center gap-4">
+                            <button className="bg-gray-100 w-10 h-10 rounded-full hover:bg-slate-200">
+                                <i className="ri-arrow-left-line"></i>
+                            </button>
+                            <h1>{getPathname(pathname)}</h1>
+                        </div>
+                    }
+                    divider 
+                >
                     <Outlet />
                 </Card>
             </section>
