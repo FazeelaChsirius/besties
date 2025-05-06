@@ -17,12 +17,12 @@ const Layout = () => {
             icon: 'ri-home-9-line'
         },
         {
-            href: '/posts',
+            href: '/app/posts',
             label: 'my posts',
             icon: 'ri-chat-smile-3-line'
         },
         {
-            href: '/friends',
+            href: '/app/friends',
             label: 'friends',
             icon: 'ri-group-line'
         }
@@ -47,14 +47,14 @@ const Layout = () => {
                                     className="flex items-center gap-3 text-gray-300 py-3 hover:text-white"
                                 >
                                     <i className={`${item.icon} text-xl`}></i>
-                                    <label className="capitalize">{item.label}</label>
+                                    <label className="capitalize cursor-pointer">{item.label}</label>
                                 </Link>
 
                             ))
                         }
-                        <button className="flex items-center gap-3 text-gray-300 py-3 hover:text-white">
+                        <button className="flex items-center gap-3 text-gray-300 py-3 hover:text-white cursor-pointer">
                             <i className="ri-logout-circle-r-line text-xl"></i>
-                            <label>Logout</label>
+                            <label className="capitalize cursor-pointer">Logout</label>
                         </button>
                     </div>
                 </div>
@@ -71,7 +71,7 @@ const Layout = () => {
                 <Card title='My Friends' divider>
                     <div className="space-y-5">
                         {
-                            Array(20).fill(0).map((item, index) => (
+                            Array(20).fill(0).map((index) => (
                                 <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between">
                                     <Avatar 
                                         size="md"
