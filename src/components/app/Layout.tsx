@@ -1,10 +1,12 @@
-import { Link } from "react-router-dom"
+import { Link, Outlet, useLocation } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
 
 const Layout = () => {
     const leftAsideSize = 350
     const rightAsideSize = 450
+    const{ pathname } = useLocation()
+    console.log(pathname)
 
     const sectionDimention = {
        width: `calc(100% - ${leftAsideSize + rightAsideSize}px)`,
@@ -12,7 +14,7 @@ const Layout = () => {
     }
     const menus = [
         {
-            href: '/app',
+            href: '/app/dashboard',
             label: 'dashboard',
             icon: 'ri-home-9-line'
         },
@@ -60,8 +62,8 @@ const Layout = () => {
                 </div>
             </aside>
             <section className="py-8 px-1" style={sectionDimention}>
-                <Card>
-
+                <Card title={pathname.split("/").pop()} divider >
+                    <Outlet />
                 </Card>
             </section>
             <aside 
@@ -71,7 +73,7 @@ const Layout = () => {
                 <Card title='My Friends' divider>
                     <div className="space-y-5">
                         {
-                            Array(20).fill(0).map((index) => (
+                            Array(20).fill(0).map((item, index) => (
                                 <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between">
                                     <Avatar 
                                         size="md"

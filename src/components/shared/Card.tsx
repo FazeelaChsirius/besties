@@ -12,7 +12,7 @@ const Card: FC<CardInterface> = ({children, title, footer, divider=false}) => {
     <div className='bg-white shadow-lg px-5 py-4 rounded-lg border border-gray-100 space-y-2'>
       {
         title &&
-        <h1 className='text-lg font-semibold'>{title}</h1>
+        <h1 className='text-lg font-semibold capitalize'>{title}</h1>
       }
       {
         divider &&
