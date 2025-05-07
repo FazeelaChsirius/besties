@@ -8,6 +8,7 @@ import Layout from "./components/app/Layout"
 import Dashboard from "./components/app/Dashboard"
 import Post from "./components/app/Post"
 import Friends from "./components/app/Friends"
+import Video from "./components/app/Video"
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="dashboard" element={<Dashboard />}/>
         <Route path="my-posts" element={<Post />}/>
         <Route path="friends" element={<Friends />}/>
+        <Route path="video-chat" element={<Video />}/>
       </Route>
     </Routes>
     </BrowserRouter>

@@ -130,9 +130,9 @@ const Layout = () => {
                                         <button className="hover:text-green-600 text-green-500" title="call">
                                             <i className="ri-phone-line"></i>
                                         </button> 
-                                        <button className="hover:text-amber-600 text-amber-500" title="video call">
+                                        <Link to="/app/video-chat" className="hover:text-amber-600 text-amber-500" title="video call">
                                             <i className="ri-video-on-ai-line"></i>
-                                        </button>
+                                        </Link>
                                     </div>
                                 </div>
                             ))
