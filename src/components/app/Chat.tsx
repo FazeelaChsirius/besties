@@ -1,6 +1,6 @@
 import Avatar from "../shared/Avatar"
-// import Button from "../shared/Button"
-// import Input from "../shared/Input"
+import Button from "../shared/Button"
+import Input from "../shared/Input"
 
 const Chat = () => {
 
@@ -35,7 +35,7 @@ const Chat = () => {
                     ))
                 }
             </div>
-            {/* <div className="p-6">
+            <div className="p-6">
                 <div className="flex gap-4 items-center justify-between bg-gray-100">
                     <form className="flex gap-3 flex-1">
                         <Input name="message" placeholder="Type your message"/>
@@ -45,9 +45,9 @@ const Chat = () => {
                         </button>
                     </form>
                 </div>
-            </div> */}
+            </div>
 
-            <div className="p-6">
+            {/* <div className="p-6">
                 <form className="flex items-center justify-between bg-gray-100 rounded-full px-4 py-1 shadow-sm">
                     <input 
                         type="text" 
@@ -71,7 +71,7 @@ const Chat = () => {
                     </div>
                 </form>
 
-            </div>
+            </div> */}
 
         </div>
     )
