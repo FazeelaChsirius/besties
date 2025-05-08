@@ -102,13 +102,37 @@ const Layout = () => {
                 </Card>
             </section>
             <aside 
-                className="bg-white w-[${asideSize}px] fixed h-full top-0 right-0 p-8 overflow-auto" 
+                className="bg-white w-[${asideSize}px] fixed h-full top-0 right-0 p-8 overflow-auto space-y-8" 
                 style={{
                     width: rightAsideSize,
                     transition: '0.2s'
                 }}
             >
-                <Card title='My Friends' divider>
+                <div className="h-[250px] overflow-auto">
+                    <Card title="Suggested" divider>
+                        <div className="space-y-6">
+                            {
+                                Array(20).fill(0).map((item, index) => (
+                                    <div key={index} className="flex gap-4">
+                                        <img
+                                            src="/images/girl.png" 
+                                            alt="image"
+                                            className="w-16 h-16 rounded-full object-cover"
+                                        />
+                                        <div>
+                                            <h1 className="text-black font-medium">Priya Singh</h1>
+                                            <button className=" mt-2 px-2 py-1 rounded text-xs bg-green-500 hover:bg-green-600 font-medium text-white">
+                                                <i className="ri-user-add-line mr-1"></i>
+                                                Add friend
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            } 
+                        </div>
+                    </Card>
+                </div>
+                <Card title='Friends' divider>
                     <div className="space-y-5">
                         {
                             Array(20).fill(0).map((item, index) => (
@@ -124,12 +148,12 @@ const Layout = () => {
                                         }
                                     />
                                     <div className="space-x-3">
-                                        <button className="hover:text-blue-600 text-blue-500" title="chat">
+                                        <Link to="/app/chat" className="hover:text-blue-600 text-blue-500" title="chat">
                                             <i className="ri-chat-ai-line"></i>
-                                        </button>
-                                        <button className="hover:text-green-600 text-green-500" title="call">
+                                        </Link>
+                                        <Link to="/app/audio-chat" className="hover:text-green-600 text-green-500" title="call">
                                             <i className="ri-phone-line"></i>
-                                        </button> 
+                                        </Link> 
                                         <Link to="/app/video-chat" className="hover:text-amber-600 text-amber-500" title="video call">
                                             <i className="ri-video-on-ai-line"></i>
                                         </Link>
