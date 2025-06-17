@@ -15,19 +15,19 @@ import Chat from "./components/app/Chat"
 const App = () => {
   return (
     <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />}/>
-      <Route path="/signup" element={<Signup />}/>
-      <Route path="/app" element={<Layout />}>
-        <Route path="dashboard" element={<Dashboard />}/>
-        <Route path="my-posts" element={<Post />}/>
-        <Route path="friends" element={<Friends />}/>
-        <Route path="video-chat" element={<Video />}/>
-        <Route path="audio-chat" element={<Audio />}/>
-        <Route path="chat" element={<Chat />}/>
-      </Route>
-    </Routes>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />}/>
+        <Route path="/signup" element={<Signup />}/>
+        <Route path="/app" element={<Layout />}>
+          <Route path="dashboard" element={<Dashboard />}/>
+          <Route path="my-posts" element={<Post />}/>
+          <Route path="friends" element={<Friends />}/>
+          <Route path="video-chat" element={<Video />}/>
+          <Route path="audio-chat" element={<Audio />}/>
+          <Route path="chat" element={<Chat />}/>
+        </Route>
+      </Routes>
     </BrowserRouter>
   )
 }

@@ -69,7 +69,7 @@ const Layout = () => {
                                 </Link>
                             ))
                         }
-                        <button className="flex items-center gap-4 text-gray-300 py-3 hover:text-white cursor-pointer" title="Logout">
+                        <button className="flex items-center gap-4 text-gray-300 py-3 hover:text-white cursor-pointer w-full" title="Logout">
                             <i className="ri-logout-circle-r-line text-xl"></i>
                             <label className={`capitalize ${leftAsideSize === collapseSize ? 'hidden' : ''}`}>Logout</label>
                         </button>
@@ -135,7 +135,7 @@ const Layout = () => {
                 <Card title='Friends' divider>
                     <div className="space-y-5">
                         {
-                            Array(20).fill(0).map((item, index) => (
+                            Array(20).fill(0).map((item, index ) => (
                                 <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between">
                                     <Avatar 
                                         size="md"

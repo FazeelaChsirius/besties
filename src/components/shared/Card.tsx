@@ -5,9 +5,10 @@ interface CardInterface {
   title?: ReactNode
   footer?: ReactElement
   divider?: boolean
+  // key?: string | number
 }
 
-const Card: FC<CardInterface> = ({children, title, footer, divider=false}) => {
+const Card: FC<CardInterface> = ({ children, title, footer, divider=false }) => {
   return (
     <div className='bg-white shadow-lg px-5 py-4 rounded-lg border border-gray-100 space-y-2'>
       {
