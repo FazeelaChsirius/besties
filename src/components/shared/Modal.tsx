@@ -7,7 +7,7 @@ interface ModalInterface {
   children?: string
   open?: boolean
   onClose?: ()=>void
-  // key?: string | number
+  key?: string | number
 }
 
 const Modal: FC<ModalInterface> = ({ title="Modal title", children="Your content goes here", open=true, onClose}) => {

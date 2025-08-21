@@ -4,7 +4,7 @@ interface InputInterface {
   name: string
   type?: string
   placeholder?: string
-  // key?: string | number
+  key?: string | number
 }
 
 const Input: FC<InputInterface> = ({ name, placeholder, type="text"}) => {

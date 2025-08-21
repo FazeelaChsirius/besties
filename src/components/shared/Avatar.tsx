@@ -6,7 +6,7 @@ interface AvatarInterface {
     titleColor?: string
     subtitleColor?: string
     size?: "lg" | "md"
-    // key?: string | number
+    key?: string | number
 }
 
 const Avatar: FC<AvatarInterface> = ({ size="lg",title, subtitle='Subtitle missing', image, titleColor="#000000", subtitleColor="#f5f5f5"}) => {

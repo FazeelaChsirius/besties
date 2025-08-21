@@ -5,7 +5,7 @@ interface DrawerInterface {
     title?: string
     open?: boolean
     onClose?: ()=>void
-    // key?: string | number
+    key?: string | number
 }
 
 const Drawer: FC<DrawerInterface> = ({ children="Your content goes here", title="Drawer title", open=true, onClose}) => {

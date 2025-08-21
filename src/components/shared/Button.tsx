@@ -16,7 +16,7 @@ interface ButtonInterface {
     type?: "primary" | "secondary" | "danger" | "warning" | "dark" | "success" | "info"
     onClick?: ()=>void
     icon?: string
-    // key?: string | number
+    key?: string | number
 }
 
 const Button: FC<ButtonInterface> = ({ children="Submit", type="primary", onClick, icon})=>{

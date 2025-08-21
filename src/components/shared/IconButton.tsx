@@ -15,7 +15,7 @@ interface IconButtonInterface {
     type?: "primary" | "secondary" | "danger" | "warning" | "dark" | "success" | "info"
     onClick?: ()=>void
     icon: string
-    // key?: string | number
+    key?: string | number
 }
 
 const IconButton: FC<IconButtonInterface> = ({ type="primary", onClick, icon})=>{

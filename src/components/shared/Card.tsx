@@ -5,12 +5,13 @@ interface CardInterface {
   title?: ReactNode
   footer?: ReactElement
   divider?: boolean
-  // key?: string | number
+  key?: string | number
+  noPadding?: boolean
 }
 
-const Card: FC<CardInterface> = ({ children, title, footer, divider=false }) => {
+const Card: FC<CardInterface> = ({ noPadding=false, children, title, footer, divider=false }) => {
   return (
-    <div className='bg-white shadow-lg px-5 py-4 rounded-lg border border-gray-100 space-y-2'>
+    <div className={`bg-white shadow-lg ${noPadding ? '' : 'px-5 py-4'} rounded-lg border border-gray-100 space-y-2`}>
       {
         title &&
         <h1 className='text-lg font-semibold capitalize'>{title}</h1>

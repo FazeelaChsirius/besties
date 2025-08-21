@@ -2,10 +2,11 @@ import { Link, Outlet, useLocation } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
 import { useState } from "react"
+import Dashboard from "./Dashboard"
 
 const Layout = () => { 
-    const [leftAsideSize, setLeftAsideSide] = useState(350)
     const{ pathname } = useLocation()
+    const [leftAsideSize, setLeftAsideSide] = useState(350)
     const rightAsideSize = 450
     const collapseSize = 140
 
@@ -98,7 +99,12 @@ const Layout = () => {
                     }
                     divider 
                 >
-                    <Outlet />
+                    {
+                        pathname === "/app" ? 
+                        <Dashboard />
+                        :
+                        <Outlet />
+                    }
                 </Card>
             </section>
             <aside 
