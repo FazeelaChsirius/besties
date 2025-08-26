@@ -13,6 +13,7 @@ import Audio from "./components/app/Audio"
 import Chat from "./components/app/Chat"
 import NotFound from "./components/NotFound"
 import Context from "./Context"
+import {ToastContainer} from 'react-toastify'
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
           </Route>
           <Route path="*" element={<NotFound />}/>
         </Routes>
+        <ToastContainer />
       </BrowserRouter>
     </Context.Provider>
   )
