@@ -4,6 +4,8 @@ import Card from "./shared/Card"
 import Input from "./shared/Input"
 import Form, { FormDataType } from "./shared/Form"
 import HttpInterceptor from "../lib/HttpInterceptor"
+import { toast } from "react-toastify"
+import axios from "axios"
 
 const Login = () => {
   const login = async (values: FormDataType) => {
@@ -11,8 +13,15 @@ const Login = () => {
       const {data} = await HttpInterceptor.post('/auth/login', values)
       console.log(data)
 
-    } catch (err) {
-      console.log(err) 
+    } catch (err: unknown) {
+
+      if(axios.isAxiosError(err))
+        return toast.error(err.response?.data.message)
+
+      if(err instanceof Error) 
+        return toast.error(err.message)
+
+      toast.error("network error")
     }
   }
 
