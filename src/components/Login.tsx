@@ -14,7 +14,6 @@ const Login = () => {
       console.log(data)
 
     } catch (err: unknown) {
-
       if(axios.isAxiosError(err))
         return toast.error(err.response?.data.message)
 
