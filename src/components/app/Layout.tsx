@@ -1,10 +1,12 @@
 import { Link, Outlet, useLocation } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import Dashboard from "./Dashboard"
+import Context from "../../Context"
 
 const Layout = () => { 
+    const {session} = useContext(Context)
     const{ pathname } = useLocation()
     const [leftAsideSize, setLeftAsideSide] = useState(350)
     const rightAsideSize = 450
@@ -48,13 +50,16 @@ const Layout = () => {
                         <i className="ri-user-fill text-xl text-white animate__animated animate__fadeIn"></i>
                         :
                         <div className="animate__animated animate__fadeIn">
-                            <Avatar 
-                                title={leftAsideSize === collapseSize ? null : 'Fazeela Mushtaq'}
-                                subtitle="Software Engineer"
-                                image='/images/girl.png'
-                                titleColor="white"
-                                subtitleColor="#ddd"
-                            />
+                            {
+                                session && 
+                                <Avatar 
+                                    title={leftAsideSize === collapseSize ? null : session.fullname}
+                                    subtitle={session.email}
+                                    image='/images/girl.png'
+                                    titleColor="white"
+                                    subtitleColor="#ddd"
+                                />
+                            }
                         </div>
                     }
                     <div> 

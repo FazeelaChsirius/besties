@@ -1,4 +1,5 @@
-import { createContext } from "react";
+import { createContext } from "react"
 
-const Context = createContext<unknown | null>(null)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Context = createContext<any | null>(null)
 export default Context 
