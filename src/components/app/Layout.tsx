@@ -67,6 +67,22 @@ const Layout = () => {
         }
     }
 
+    const download = async () => {
+        try {
+            const options = {
+                path: "demo/girl.png"
+            }
+            const {data} = await HttpInterceptor.post('/storage/download', options)
+            const link = document.createElement("a")
+            link.href = data.url
+            link.download = "girl.png"
+            link.click()
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     return (
         <div className="min-h-screen">
             <aside 
@@ -112,6 +128,9 @@ const Layout = () => {
                             <i className="ri-logout-circle-r-line text-xl"></i>
                             <label className={`capitalize ${leftAsideSize === collapseSize ? 'hidden' : ''}`}>Logout</label>
                         </button>
+
+                        <button className="text-gray-200" onClick={download}>Download Image</button>
+
                     </div>
                 </div>
             </aside>

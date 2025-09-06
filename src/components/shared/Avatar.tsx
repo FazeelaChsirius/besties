@@ -18,7 +18,7 @@ const Avatar: FC<AvatarInterface> = ({onClick, size="lg",title, subtitle='Subtit
                 <img 
                     onClick={onClick}
                     src={image}
-                    className={`${size === "lg" ? "w-12 h-12" : "w-8 h-8"} rounded-full object-cover`}
+                    className={`${size === "lg" ? "w-12 h-12" : "w-8 h-8"} rounded-full object-cover cursor-pointer`}
                 />
             }
             {
