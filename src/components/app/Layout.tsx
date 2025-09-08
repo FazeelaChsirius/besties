@@ -5,9 +5,10 @@ import { useContext, useState } from "react"
 import Dashboard from "./Dashboard"
 import Context from "../../Context"
 import HttpInterceptor from "../../lib/HttpInterceptor"
+import {v4 as uuid} from "uuid"
 
 const Layout = () => { 
-    const {session} = useContext(Context)
+    const {session, setSession} = useContext(Context)
     const{ pathname } = useLocation()
     const [leftAsideSize, setLeftAsideSide] = useState(350)
     const rightAsideSize = 450
@@ -37,29 +38,31 @@ const Layout = () => {
     }
 
     const uploadImage = () => {
-        const input = document.createElement("input")
-        input.type = "file"
-        input.accept = "image/*"
-        input.click()
-        input.onchange = async () => {
-            if(!input.files)
+        const input = document.createElement("input")  // invisible input field
+        input.type = "file"                            // Set "file" input type
+        input.accept = "image/*"                       // Choose only image file
+        input.click()                                  // Open file picker/ click() → programmatically button click
+        input.onchange = async () => {                 // function trigger as user select the file
+            if(!input.files)                           // check if fiel not exist
                 return 
 
-            const file = input.files[0]
-            const payload = {
-                path: "demo/girl.png",
-                type: file.type
-            }
-
+            const file = input.files[0]                 // select file array
+            const path = `profile-pictures/${uuid()}.png` // unique image path for user
+            
             try {
-                const options = {
+                const payload = {
+                    path,                                // unique file path 
+                    type: file.type                      // define in server where and which type of file will stored
+                }
+                const options = {                        // define file typ ein request headers
                     headers: {
                         'Content-Type': file.type
                     }
                 }
                 const {data} = await HttpInterceptor.post('/storage/upload', payload)
                 await HttpInterceptor.put(data.url, file, options)
-                console.log('success')
+                const {data: user} = await HttpInterceptor.put('/auth/profile-picture', {path})
+                setSession({...session, image: user.image})
                 
             } catch (err) {
                 console.log(err)
@@ -103,7 +106,7 @@ const Layout = () => {
                                 <Avatar 
                                     title={leftAsideSize === collapseSize ? null : session.fullname}
                                     subtitle={session.email}
-                                    image='/images/girl.png'
+                                    image={session.image || '/images/girl.png'}
                                     titleColor="white"
                                     subtitleColor="#ddd"
                                     onClick={uploadImage}
