@@ -6,10 +6,19 @@ import Dashboard from "./Dashboard"
 import Context from "../../Context"
 import HttpInterceptor from "../../lib/HttpInterceptor"
 import {v4 as uuid} from "uuid"
+import useSWR, { mutate } from 'swr'
+import Fetcher from "../../lib/Fetcher"
+
+const EightMinuteInMs = 8*60*1000
 
 const Layout = () => { 
-    const {session, setSession} = useContext(Context)
     const{ pathname } = useLocation()
+    const {session, setSession} = useContext(Context)
+    useSWR('/auth/refresh-token', Fetcher, {
+        refreshInterval: EightMinuteInMs,
+        shouldRetryOnError: false
+    })
+     
     const [leftAsideSize, setLeftAsideSide] = useState(350)
     const rightAsideSize = 450
     const collapseSize = 140
@@ -63,6 +72,7 @@ const Layout = () => {
                 await HttpInterceptor.put(data.url, file, options)
                 const {data: user} = await HttpInterceptor.put('/auth/profile-picture', {path})
                 setSession({...session, image: user.image})
+                mutate('/auth/refresh-token')
                 
             } catch (err) {
                 console.log(err)
