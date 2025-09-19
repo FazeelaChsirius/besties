@@ -14,8 +14,10 @@ import Chat from "./components/app/Chat"
 import NotFound from "./components/NotFound"
 import Context from "./Context"
 import { ToastContainer } from 'react-toastify'
-import Guard from "./Guard"
+
 import { useState } from "react"
+import AuthGuard from "./guards/AuthGuard"
+import RedirectGuard from "./guards/RedirectGuard"
 
 const App = () => {
   const [session, setSession] = useState(null)
@@ -25,9 +27,11 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />}/>
-          <Route path="/signup" element={<Signup />}/>
-          <Route element={<Guard />}>
+          <Route element={<RedirectGuard />}>
+            <Route path="/login" element={<Login />}/>
+            <Route path="/signup" element={<Signup />}/>
+          </Route>
+          <Route element={<AuthGuard/>}>
             <Route path="/app" element={<Layout />}>
               <Route path="dashboard" element={<Dashboard />}/>
               <Route path="my-posts" element={<Post />}/>
