@@ -1,23 +1,32 @@
-import { Link, Outlet, useLocation } from "react-router-dom"
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import Dashboard from "./Dashboard"
 import Context from "../../Context"
 import HttpInterceptor from "../../lib/HttpInterceptor"
 import {v4 as uuid} from "uuid"
 import useSWR, { mutate } from 'swr'
 import Fetcher from "../../lib/Fetcher"
+import CatchError from "../../lib/CatchError"
 
-const EightMinuteInMs = 8*60*1000
+const FiveMinuteInMs = 5*60*1000
 
 const Layout = () => { 
     const{ pathname } = useLocation()
+    const navigate = useNavigate()
     const {session, setSession} = useContext(Context)
-    useSWR('/auth/refresh-token', Fetcher, {
-        refreshInterval: EightMinuteInMs,
+    const {error} = useSWR('/auth/refresh-token', Fetcher, {
+        refreshInterval: FiveMinuteInMs,
         shouldRetryOnError: false
     })
+
+    useEffect(() => {
+        if(error) {
+            logout()
+        }
+
+    }, [error])
      
     const [leftAsideSize, setLeftAsideSide] = useState(350)
     const rightAsideSize = 450
@@ -40,6 +49,17 @@ const Layout = () => {
             icon: 'ri-group-line'
         }
     ]
+
+    const logout = async () => {
+        try {
+            await HttpInterceptor.post('/auth/logout')
+            navigate('/login')
+            
+        } catch (err) {
+            CatchError(err)
+        }
+    }
+
     const getPathname = (path: string) => {
         const firstPath = path.split("/").pop()
         const finalPath = firstPath?.split("-").join(" ")
@@ -80,21 +100,21 @@ const Layout = () => {
         }
     }
 
-    const download = async () => {
-        try {
-            const options = {
-                path: "demo/girl.png"
-            }
-            const {data} = await HttpInterceptor.post('/storage/download', options)
-            const link = document.createElement("a")
-            link.href = data.url
-            link.download = "girl.png"
-            link.click()
+    // const download = async () => {
+    //     try {
+    //         const options = {
+    //             path: "demo/girl.png"
+    //         }
+    //         const {data} = await HttpInterceptor.post('/storage/download', options)
+    //         const link = document.createElement("a")
+    //         link.href = data.url
+    //         link.download = "girl.png"
+    //         link.click()
 
-        } catch (err) {
-            console.log(err)
-        }
-    }
+    //     } catch (err) {
+    //         console.log(err)
+    //     }
+    // }
 
     return (
         <div className="min-h-screen">
@@ -137,12 +157,10 @@ const Layout = () => {
                                 </Link>
                             ))
                         }
-                        <button className="flex items-center gap-4 text-gray-300 py-3 hover:text-white cursor-pointer w-full" title="Logout">
+                        <button onClick={logout} className="flex items-center gap-4 text-gray-300 py-3 hover:text-white !cursor-pointer w-full " title="Logout">
                             <i className="ri-logout-circle-r-line text-xl"></i>
                             <label className={`capitalize ${leftAsideSize === collapseSize ? 'hidden' : ''}`}>Logout</label>
                         </button>
-
-                        <button className="text-gray-200" onClick={download}>Download Image</button>
 
                     </div>
                 </div>

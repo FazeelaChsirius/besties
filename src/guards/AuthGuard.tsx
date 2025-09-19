@@ -1,11 +1,11 @@
 import { useContext, useEffect } from "react"
 import { Navigate, Outlet } from "react-router-dom"
-import HttpInterceptor from "./lib/HttpInterceptor"
-import Context from "./Context"
-import CatchError from "./lib/CatchError"
+import HttpInterceptor from "../lib/HttpInterceptor"
+import Context from "../Context"
+import CatchError from "../lib/CatchError"
 
 
-const Guard = () => {
+const AuthGuard = () => {
     const context = useContext(Context)
     const { session, setSession } = context
     useEffect(() => {
@@ -33,4 +33,4 @@ const Guard = () => {
     return <Outlet />
 }
 
-export default Guard
+export default AuthGuard
