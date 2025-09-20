@@ -9,15 +9,16 @@ import {v4 as uuid} from "uuid"
 import useSWR, { mutate } from 'swr'
 import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
+import FriendSuggestion from "./FriendSuggestion"
 
-const FiveMinuteInMs = 5*60*1000
+const EightMinuteInMs = 8*60*1000
 
 const Layout = () => { 
     const{ pathname } = useLocation()
     const navigate = useNavigate()
     const {session, setSession} = useContext(Context)
     const {error} = useSWR('/auth/refresh-token', Fetcher, {
-        refreshInterval: FiveMinuteInMs,
+        refreshInterval: EightMinuteInMs,
         shouldRetryOnError: false
     })
 
@@ -202,30 +203,7 @@ const Layout = () => {
                     transition: '0.2s'
                 }}
             >
-                <div className="h-[250px] overflow-auto">
-                    <Card title="Suggested" divider>
-                        <div className="space-y-6">
-                            {
-                                Array(20).fill(0).map((item, index) => (
-                                    <div key={index} className="flex gap-4">
-                                        <img
-                                            src="/images/girl.png" 
-                                            alt="image"
-                                            className="w-16 h-16 rounded-full object-cover"
-                                        />
-                                        <div>
-                                            <h1 className="text-black font-medium">Priya Singh</h1>
-                                            <button className=" mt-2 px-2 py-1 rounded text-xs bg-green-500 hover:bg-green-600 font-medium text-white">
-                                                <i className="ri-user-add-line mr-1"></i>
-                                                Add friend
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
-                            } 
-                        </div>
-                    </Card>
-                </div>
+                <FriendSuggestion />
                 <Card title='Friends' divider>
                     <div className="space-y-5">
                         {
