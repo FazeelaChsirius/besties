@@ -17,9 +17,17 @@ interface ButtonInterface {
     onClick?: ()=>void
     icon?: string
     key?: string | number
+    loading?: boolean
 }
 
-const Button: FC<ButtonInterface> = ({ children="Submit", type="primary", onClick, icon})=>{
+const Button: FC<ButtonInterface> = ({ children="Submit", type="primary", onClick, icon, loading=false})=>{
+    if(loading)
+    return (
+        <button disabled className='text-gray-400'>
+            <i className='fa fa spinner fa-spin mr-2'></i>
+            Processing...
+        </button>
+    )
     return (
         <button className={ButtonModel[type]} onClick={onClick}>
             {

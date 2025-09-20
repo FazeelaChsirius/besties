@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import 'remixicon/fonts/remixicon.css'
 import 'animate.css'
+import 'font-awesome/css/font-awesome.min.css'
 import Home from "./components/Home"
 import Login from "./components/Login"
 import Signup from "./components/Signup"
