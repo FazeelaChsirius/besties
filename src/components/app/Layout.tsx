@@ -82,7 +82,8 @@ const Layout = () => {
             try {
                 const payload = {
                     path,                                // unique file path 
-                    type: file.type                      // define in server where and which type of file will stored
+                    type: file.type,                     // define in server where and which type of file will stored
+                    status: "public-read"
                 }
                 const options = {                        // define file typ ein request headers
                     headers: {
