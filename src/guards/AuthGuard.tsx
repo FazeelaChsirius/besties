@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router-dom"
 import HttpInterceptor from "../lib/HttpInterceptor"
 import Context from "../Context"
 import CatchError from "../lib/CatchError"
-
+import { Skeleton } from "antd"
 
 const AuthGuard = () => {
     const context = useContext(Context)
@@ -25,7 +25,7 @@ const AuthGuard = () => {
     }
 
     if(session === null)
-        return null
+        return <Skeleton active />
 
     if(session === false)
         return <Navigate to="/login"/>
