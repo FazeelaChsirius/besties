@@ -3,6 +3,7 @@ import { Navigate, Outlet } from "react-router-dom"
 import HttpInterceptor from "../lib/HttpInterceptor"
 import Context from "../Context"
 import CatchError from "../lib/CatchError"
+import { Skeleton } from "antd"
 
 
 const RedirectGuard = () => {
@@ -25,7 +26,7 @@ const RedirectGuard = () => {
     }
 
     if(session === null)
-        return null
+        return <Skeleton active />
 
     if(session === false)
         return <Outlet />
