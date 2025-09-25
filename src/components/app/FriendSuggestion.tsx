@@ -20,6 +20,7 @@ const FriendSuggestion = () => {
             await HttpInterceptor.post('/friend', {friend: id})
             toast.success("Friend request sent !", {position: "top-center"})
             mutate("/friend/suggestion")
+            mutate('/friend')
             
         } catch (err) {
             CatchError(err)
