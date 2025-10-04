@@ -9,7 +9,7 @@ import {v4 as uuid} from "uuid"
 import useSWR, { mutate } from 'swr'
 import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
-import FriendSuggestion from "./FriendSuggestion"
+import FriendsSuggestion from "./friend/FriendsSuggestion"
 
 const EightMinuteInMs = 8*60*1000
 
@@ -21,7 +21,6 @@ const Layout = () => {
         refreshInterval: EightMinuteInMs,
         shouldRetryOnError: false
     })
-
     useEffect(() => {
         if(error) {
             logout()
@@ -163,18 +162,18 @@ const Layout = () => {
                             <i className="ri-logout-circle-r-line text-xl"></i>
                             <label className={`capitalize ${leftAsideSize === collapseSize ? 'hidden' : ''}`}>Logout</label>
                         </button>
-
                     </div>
                 </div>
             </aside>
             <section 
-                className="py-8 px-1" 
+                className="py-8 px-1 space-y-8" 
                 style={{
                     width: `calc(100% - ${leftAsideSize + rightAsideSize}px)`,
                     marginLeft: leftAsideSize,
                     transition: '0.2s'
                 }}
             >
+                <FriendsSuggestion />
                 <Card 
                     title = {
                         <div className="flex items-center gap-4">
@@ -204,7 +203,6 @@ const Layout = () => {
                     transition: '0.2s'
                 }}
             >
-                <FriendSuggestion />
                 <Card title='Friends' divider>
                     <div className="space-y-5">
                         {
