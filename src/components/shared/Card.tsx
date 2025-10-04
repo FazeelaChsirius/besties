@@ -25,10 +25,10 @@ const Card: FC<CardInterface> = ({ noPadding=false, children, title, footer, div
         <div className='text-gray-500'>{children}</div>
       }
       {
-          footer &&
-          <div className='mt-4'>
-              {footer}
-          </div>
+        footer &&
+        <div className='mt-4'>
+            {footer}
+        </div>
       }
     </div>
   )

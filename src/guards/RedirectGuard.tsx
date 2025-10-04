@@ -5,7 +5,6 @@ import Context from "../Context"
 import CatchError from "../lib/CatchError"
 import { Skeleton } from "antd"
 
-
 const RedirectGuard = () => {
     const context = useContext(Context)
     const { session, setSession } = context
