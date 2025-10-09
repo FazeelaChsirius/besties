@@ -10,10 +10,16 @@ import useSWR, { mutate } from 'swr'
 import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
 import FriendsSuggestion from "./friend/FriendsSuggestion"
+import FriendsRequest from "./friend/FriendsRequest"
+import FriendsList from "./friend/FriendsList"
+import { useMediaQuery } from 'react-responsive'
+import Logo from "../shared/Logo"
+import IconButton from "../shared/IconButton"
 
 const EightMinuteInMs = 8*60*1000
 
 const Layout = () => { 
+    const isMobile = useMediaQuery({ query: '(max-width: 1224px)' })
     const{ pathname } = useLocation()
     const navigate = useNavigate()
     const {session, setSession} = useContext(Context)
@@ -21,16 +27,31 @@ const Layout = () => {
         refreshInterval: EightMinuteInMs,
         shouldRetryOnError: false
     })
+
+    const friendsUiBlacklist = [
+        "/app/friends",
+        "/app/chat",
+        "/app/audio-chat",
+        "/app/video-chat"
+    ]
+    
+    const isBlacklisted = friendsUiBlacklist.some((path) => pathname === path)
+    console.log(isBlacklisted)
     useEffect(() => {
         if(error) {
             logout()
         }
 
     }, [error])
+
+    useEffect(() => {
+        setLeftAsideSide(isMobile ? 0 : 350)
+        setCollapseSize(isMobile ? 0 : 140)
+    }, [isMobile])
      
-    const [leftAsideSize, setLeftAsideSide] = useState(350)
+    const [leftAsideSize, setLeftAsideSide] = useState(0)
+    const [collapseSize, setCollapseSize] = useState(0)
     const rightAsideSize = 450
-    const collapseSize = 140
 
     const menus = [
         {
@@ -119,14 +140,24 @@ const Layout = () => {
 
     return (
         <div className="min-h-screen">
+            <nav className="lg:hidden justify-between items-center flex bg-gradient-to-tr from-slate-900 via-purple-800 to-gray-900 sticky top-0 left-0 z-[20000] w-full py-4 px-6">
+                <Logo />
+                <div className="flex gap-4">
+                    <IconButton onClick={logout} icon="logout-circle-line" type="success" />
+                    <Link to='/app/friends'>
+                        <IconButton onClick={() => setLeftAsideSide(leftAsideSize === 350 ? collapseSize : 350)} icon="chat-ai-line" type="danger" />
+                    </Link>
+                    <IconButton icon="menu-3-line" type="warning" />
+                </div>
+            </nav>
             <aside 
-                className="bg-white fixed h-full top-0 left-0 p-8 overflow-auto" 
+                className="bg-white fixed h-full top-0 left-0 lg:p-8 overflow-auto z-[20000]" 
                 style={{
                     width: leftAsideSize,
                     transition: '0.2s'
                 }}
             >
-                <div className="space-y-8 h-full rounded-2xl p-8 bg-gradient-to-tr from-slate-900 via-purple-800 to-gray-900">
+                <div className="space-y-8 h-full lg:rounded-2xl p-8 bg-gradient-to-tr from-slate-900 via-purple-800 to-gray-900">
                     {
                         leftAsideSize === collapseSize ?
                         <i className="ri-user-fill text-xl text-white animate__animated animate__fadeIn"></i>
@@ -166,19 +197,22 @@ const Layout = () => {
                 </div>
             </aside>
             <section 
-                className="py-8 px-1 space-y-8" 
+                className="lg:py-8 lg:px-1 p-6 space-y-8" 
                 style={{
-                    width: `calc(100% - ${leftAsideSize + rightAsideSize}px)`,
+                    width: isMobile ? '100%' : `calc(100% - ${leftAsideSize + rightAsideSize}px)`,
                     marginLeft: leftAsideSize,
                     transition: '0.2s'
                 }}
             >
-                <FriendsSuggestion />
+                {
+                    !isBlacklisted &&
+                    <FriendsRequest />
+                }
                 <Card 
                     title = {
                         <div className="flex items-center gap-4">
                             <button 
-                                className="bg-gray-100 w-10 h-10 rounded-full hover:bg-slate-200" 
+                                className="lg:block hidden bg-gray-100 w-10 h-10 rounded-full hover:bg-slate-200" 
                                 onClick={() => setLeftAsideSide(leftAsideSize === 350 ? collapseSize : 350)}
                             >
                                 <i className="ri-arrow-left-line"></i>
@@ -195,45 +229,26 @@ const Layout = () => {
                         <Outlet />
                     }
                 </Card>
+                {
+                    !isBlacklisted &&
+                    <FriendsSuggestion />
+                }
             </section>
             <aside 
-                className="bg-white w-[${asideSize}px] fixed h-full top-0 right-0 p-8 overflow-auto space-y-8" 
+                className="lg:block hidden bg-white w-[${asideSize}px] fixed h-full top-0 right-0 p-8 overflow-auto space-y-8" 
                 style={{
                     width: rightAsideSize,
                     transition: '0.2s'
-                }}
-            >
-                <Card title='Friends' divider>
-                    <div className="space-y-5">
-                        {
-                            Array(20).fill(0).map((item, index ) => (
-                                <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between">
-                                    <Avatar 
-                                        size="md"
-                                        image="/images/girl.png"
-                                        title="Fazeela Mushtaq"
-                                        subtitle={
-                                            <small className={`${index % 2 === 0 ? 'text-zinc-400' : 'text-green-400'} text-sm`}>
-                                                {index % 2 === 0 ? 'Offline' : 'Online'}
-                                            </small>
-                                        }
-                                    />
-                                    <div className="space-x-3">
-                                        <Link to="/app/chat" className="hover:text-blue-600 text-blue-500" title="chat">
-                                            <i className="ri-chat-ai-line"></i>
-                                        </Link>
-                                        <Link to="/app/audio-chat" className="hover:text-green-600 text-green-500" title="call">
-                                            <i className="ri-phone-line"></i>
-                                        </Link> 
-                                        <Link to="/app/video-chat" className="hover:text-amber-600 text-amber-500" title="video call">
-                                            <i className="ri-video-on-ai-line"></i>
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))
-                        }
-                    </div>
-                </Card>
+                }}>
+                    {
+                        !isBlacklisted && 
+                        <Card title='Friends' divider>
+                            <FriendsList gap={6} columns={2} />
+                        </Card>
+                    }
+                    <Card title="Recent posts" divider>
+
+                    </Card>
             </aside>
         </div>
     )
