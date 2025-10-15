@@ -11,10 +11,10 @@ import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
 import FriendsSuggestion from "./friend/FriendsSuggestion"
 import FriendsRequest from "./friend/FriendsRequest"
-import FriendsList from "./friend/FriendsList"
 import { useMediaQuery } from 'react-responsive'
 import Logo from "../shared/Logo"
 import IconButton from "../shared/IconButton"
+import FriendsOnline from "./friend/FriendsOnline"
 
 const EightMinuteInMs = 8*60*1000
 
@@ -23,10 +23,10 @@ const Layout = () => {
     const{ pathname } = useLocation()
     const navigate = useNavigate()
     const {session, setSession} = useContext(Context)
-    const {error} = useSWR('/auth/refresh-token', Fetcher, {
-        refreshInterval: EightMinuteInMs,
-        shouldRetryOnError: false
-    })
+    // const {error} = useSWR('/auth/refresh-token', Fetcher, {
+    //     refreshInterval: EightMinuteInMs,
+    //     shouldRetryOnError: false
+    // })
 
     const friendsUiBlacklist = [
         "/app/friends",
@@ -37,12 +37,12 @@ const Layout = () => {
     
     const isBlacklisted = friendsUiBlacklist.some((path) => pathname === path)
     console.log(isBlacklisted)
-    useEffect(() => {
-        if(error) {
-            logout()
-        }
+    // useEffect(() => {
+    //     if(error) {
+    //         logout()
+    //     }
 
-    }, [error])
+    // }, [error])
 
     useEffect(() => {
         setLeftAsideSide(isMobile ? 0 : 350)
@@ -223,10 +223,7 @@ const Layout = () => {
                     divider 
                 >
                     {
-                        pathname === "/app" ? 
-                        <Dashboard />
-                        :
-                        <Outlet />
+                        pathname === "/app" ? <Dashboard /> : <Outlet />
                     }
                 </Card>
                 {
@@ -240,15 +237,7 @@ const Layout = () => {
                     width: rightAsideSize,
                     transition: '0.2s'
                 }}>
-                    {
-                        !isBlacklisted && 
-                        <Card title='Friends' divider>
-                            <FriendsList gap={6} columns={2} />
-                        </Card>
-                    }
-                    <Card title="Recent posts" divider>
-
-                    </Card>
+                    <FriendsOnline />
             </aside>
         </div>
     )

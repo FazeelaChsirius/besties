@@ -1,11 +1,23 @@
+import socket from "../../lib/socket"
 import Avatar from "../shared/Avatar"
 import Button from "../shared/Button"
 import Input from "../shared/Input"
+import { useEffect } from "react"
 
 const Chat = () => {
+    useEffect(() => {
+        socket.on("message", (msg) => {
+            console.log(msg)
+        })
+    }, [])
+    // const sendMessage = () => {
+    //     socket.emit("message", "Welcome sir")
+    // }
 
     return (
         <div>
+           
+
             <div className="h-[450px] overflow-auto space-y-10">
                 {
                     Array(20).fill(0).map((item, index) => (
@@ -45,7 +57,7 @@ const Chat = () => {
                         </button>
                     </form>
                 </div>
-            </div>
+            </div> 
 
             {/* <div className="p-6">
                 <form className="flex items-center justify-between bg-gray-100 rounded-full px-4 py-1 shadow-sm">
