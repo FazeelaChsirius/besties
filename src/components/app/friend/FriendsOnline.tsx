@@ -34,7 +34,7 @@ const FriendsOnline = () => {
                                     <h1 className="font-medium mb-1">{item.fullname}</h1>
                                     <div className="flex items-center gap-3">
                                         <label className={`capitalize-first text-[10px] font-medium text-green-400`}>Online</label>
-                                        <Link to="/app/chat">
+                                        <Link to={`/app/chat/${item.id}`}>
                                             <i className="ri-chat-ai-line text-rose-400"></i>
                                         </Link>
                                         <Link to="/app/chat">

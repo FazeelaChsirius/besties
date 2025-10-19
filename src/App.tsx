@@ -36,10 +36,10 @@ const App = () => {
             <Route path="/app" element={<Layout />}> 
               <Route path="dashboard" element={<Dashboard />}/>
               <Route path="my-posts" element={<Post />}/>
-              <Route path="friends" element={<FriendsList />}/>
+              <Route path="friends" element={<FriendsList gap={8} columns={3}/>}/>
               <Route path="video-chat" element={<Video />}/>
               <Route path="audio-chat" element={<Audio />}/>
-              <Route path="chat" element={<Chat />}/>
+              <Route path="chat/:id" element={<Chat />}/>
             </Route>
           </Route>
           <Route path="*" element={<NotFound />}/>
