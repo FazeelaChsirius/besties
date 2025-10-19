@@ -1,61 +1,95 @@
+import { useContext, useEffect, useState } from "react"
 import socket from "../../lib/socket"
 import Avatar from "../shared/Avatar"
 import Button from "../shared/Button"
+import Form from "../shared/Form"
 import Input from "../shared/Input"
-import { useEffect } from "react"
+import Context from "../../Context"
+import { useParams } from "react-router-dom"
+
+interface MessageReceivedInterface {
+    from: string
+    message: string
+}
 
 const Chat = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [chats, setChats] = useState<any>([])
+    const {session} = useContext(Context)
+    const {id} = useParams()
+
+    const messageHandler = (messageReceived: MessageReceivedInterface) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setChats((prev: any) => [...prev, messageReceived])
+    }
+
     useEffect(() => {
-        socket.on("message", (msg) => {
-            console.log(msg)
-        })
+        socket.on('message', messageHandler)
+
+        return () => {
+            socket.off('message', messageHandler)
+        } 
     }, [])
-    // const sendMessage = () => {
-    //     socket.emit("message", "Welcome sir")
-    // }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sendMessage = (values: any) => {
+        const payload = {
+            from: session,
+            to: id,
+            message: values.message
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setChats((prev: any) => [...prev, payload])
+        socket.emit('message', payload)
+    }
 
     return (
         <div>
-           
-
             <div className="h-[450px] overflow-auto space-y-10">
                 {
-                    Array(20).fill(0).map((item, index) => (
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    chats.map((item: any, index: number) => (
                         <div className="space-y-10" key={index}>
-                            <div className="flex gap-4 items-start">
-                                <Avatar image="/images/girl.png" size="md"/>
-                                <div className="bg-rose-50 px-4  py-2 rounded-lg flex-1 text-pink-400 border border-rose-100 relative">
-                                    <h1 className="font-medium text-gray-600">Fazeela</h1>
-                                    <label>
-                                        Lorem Ipsum is simply dummy text of the printing and typesetting industry when an unknown printer took a galley
-                                    </label>
-                                    <i className="ri-arrow-left-s-fill absolute top-0 -left-5 text-4xl text-rose-50"></i>
+                            {
+                                item.from.id === session.id ? 
+                                <div className="flex gap-4 items-start">
+                                    <Avatar 
+                                        image={session.image || "/images/girl.png"} 
+                                        size="md"
+                                    />
+                                    <div className="bg-rose-50 px-4  py-2 rounded-lg flex-1 text-pink-400 border border-rose-100 relative">
+                                        <h1 className="font-medium text-gray-600 capitalize">You</h1>
+                                        <label>{item.message}</label>
+                                        
+                                        <i className="ri-arrow-left-s-fill absolute top-0 -left-5 text-4xl text-rose-50"></i>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="flex gap-4 items-start">
-                                <div className="bg-violet-50 px-4  py-2 rounded-lg flex-1 text-blue-400 border border-violet-100 relative">
-                                    <h1 className="font-medium text-gray-600">Fazila</h1>
-                                    <label>
-                                        Lorem Ipsum is simply dummy text of the printing and typesetting industry when an unknown printer took a galley
-                                    </label>
-                                    <i className="ri-arrow-right-s-fill absolute top-0 -right-5 text-4xl text-violet-50"></i>
+                                : 
+                                <div className="flex gap-4 items-start">
+                                    <div className="bg-violet-50 px-4  py-2 rounded-lg flex-1 text-blue-400 border border-violet-100 relative">
+                                        <h1 className="font-medium text-gray-600 capitalize">{item.from.fullname}</h1>
+                                        <label>{item.message}</label>
+                                        <i className="ri-arrow-right-s-fill absolute top-0 -right-5 text-4xl text-violet-50"></i>
+                                    </div>
+                                    <Avatar 
+                                        image={item.from.image || "/images/girl.png" }
+                                        size="md"
+                                    />
                                 </div>
-                                <Avatar image="/images/girl.png" size="md"/>
-                            </div>
+                            }
                         </div>
                     ))
                 }
             </div>
             <div className="p-6">
                 <div className="flex gap-4 items-center justify-between bg-gray-100">
-                    <form className="flex gap-3 flex-1">
+                    <Form className="flex gap-3 flex-1" onValue={sendMessage}>
                         <Input name="message" placeholder="Type your message"/>
                         <Button type="secondary" icon="send-plane-fill">Send</Button>
                         <button className="w-10 h-10 bg-rose-100 text-rose-500 rounded-full hover:bg-rose-300 hover:text-white">
                             <i className="ri-attachment-2"></i>
                         </button>
-                    </form>
+                    </Form>
                 </div>
             </div> 
 
