@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import socket from "../../lib/socket"
 import Avatar from "../shared/Avatar"
 import Button from "../shared/Button"
@@ -6,7 +6,8 @@ import Form from "../shared/Form"
 import Input from "../shared/Input"
 import Context from "../../Context"
 import { useParams } from "react-router-dom"
-
+import useSWR from "swr"
+import Fetcher from "../../lib/Fetcher"
 interface MessageReceivedInterface {
     from: string
     message: string
@@ -16,20 +17,37 @@ const Chat = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [chats, setChats] = useState<any>([])
     const {session} = useContext(Context)
+    const chatContainer = useRef<HTMLDivElement | null>(null)
     const {id} = useParams()
+    const {data} = useSWR(id ? `/chat/${id}` : null, id ? Fetcher : null)
 
     const messageHandler = (messageReceived: MessageReceivedInterface) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setChats((prev: any) => [...prev, messageReceived])
     }
 
+    // Listening received messages
     useEffect(() => {
         socket.on('message', messageHandler)
-
         return () => {
             socket.off('message', messageHandler)
         } 
     }, [])
+
+    // Fetching previous chats
+    useEffect(() => {
+        if(data) {
+            setChats(data)
+        }
+    }, [data])
+
+    // Setup scrollbar position
+    useEffect(() => {
+        const chatDiv = chatContainer.current
+        if(chatDiv) {
+            chatDiv.scrollTop = chatDiv.scrollHeight
+        }
+    }, [chats])
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sendMessage = (values: any) => {
@@ -45,13 +63,13 @@ const Chat = () => {
 
     return (
         <div>
-            <div className="h-[450px] overflow-auto space-y-10">
+            <div className="h-[450px] overflow-auto space-y-10 pr-6 relative" ref={chatContainer}>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     chats.map((item: any, index: number) => (
                         <div className="space-y-10" key={index}>
                             {
-                                item.from.id === session.id ? 
+                                (item.from.id === session.id || item.from._id === session.id) ? 
                                 <div className="flex gap-4 items-start">
                                     <Avatar 
                                         image={session.image || "/images/girl.png"} 
@@ -83,7 +101,7 @@ const Chat = () => {
             </div>
             <div className="p-6">
                 <div className="flex gap-4 items-center justify-between bg-gray-100">
-                    <Form className="flex gap-3 flex-1" onValue={sendMessage}>
+                    <Form className="flex gap-3 flex-1" onValue={sendMessage} reset>
                         <Input name="message" placeholder="Type your message"/>
                         <Button type="secondary" icon="send-plane-fill">Send</Button>
                         <button className="w-10 h-10 bg-rose-100 text-rose-500 rounded-full hover:bg-rose-300 hover:text-white">

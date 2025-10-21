@@ -197,48 +197,45 @@ const Layout = () => {
                 </div>
             </aside>
             <section 
-                className="lg:py-8 lg:px-1 p-6 space-y-8" 
+                className="lg:py-8 lg:px-1 flex lg:flex-row flex-col gap-8 p-6" 
                 style={{
-                    width: isMobile ? '100%' : `calc(100% - ${leftAsideSize + rightAsideSize}px)`,
+                    width: isMobile ? '100%' : `calc(100% - ${leftAsideSize}px)`,
                     marginLeft: leftAsideSize,
                     transition: '0.2s'
                 }}
             >
-                {
+                {/* {
                     !isBlacklisted &&
                     <FriendsRequest />
-                }
-                <Card 
-                    title = {
-                        <div className="flex items-center gap-4">
-                            <button 
-                                className="lg:block hidden bg-gray-100 w-10 h-10 rounded-full hover:bg-slate-200" 
-                                onClick={() => setLeftAsideSide(leftAsideSize === 350 ? collapseSize : 350)}
-                            >
-                                <i className="ri-arrow-left-line"></i>
-                            </button>
-                            <h1>{getPathname(pathname)}</h1>
-                        </div>
-                    }
-                    divider 
-                >
-                    {
-                        pathname === "/app" ? <Dashboard /> : <Outlet />
-                    }
-                </Card>
-                {
+                } */}
+                <div className="flex-1">
+                    <Card 
+                        title = {
+                            <div className="flex items-center gap-4">
+                                <button 
+                                    className="lg:block hidden bg-gray-100 w-10 h-10 rounded-full hover:bg-slate-200" 
+                                    onClick={() => setLeftAsideSide(leftAsideSize === 350 ? collapseSize : 350)}
+                                >
+                                    <i className="ri-arrow-left-line"></i>
+                                </button>
+                                <h1>{getPathname(pathname)}</h1>
+                            </div>
+                        }
+                        divider 
+                    >
+                        {
+                            pathname === "/app" ? <Dashboard /> : <Outlet />
+                        }
+                    </Card>
+                </div>
+                {/* {
                     !isBlacklisted &&
                     <FriendsSuggestion />
-                }
-            </section>
-            <aside 
-                className="lg:block hidden bg-white w-[${asideSize}px] fixed h-full top-0 right-0 p-8 overflow-auto space-y-8" 
-                style={{
-                    width: rightAsideSize,
-                    transition: '0.2s'
-                }}>
+                } */}
+                <aside className="bg-white lg:w-[450px] lg:pr-6">
                     <FriendsOnline />
-            </aside>
+                </aside>
+            </section>
         </div>
     )
 }
