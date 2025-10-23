@@ -98,6 +98,7 @@ const Chat = () => {
                 return
 
             const file = input.files[0]
+            const url = URL.createObjectURL(file)
             const ext = file.name.split(".").pop()
             const filename = `${uuid()}.${ext}`
             const path = `chats/${filename}`
@@ -114,25 +115,37 @@ const Chat = () => {
             }
             const {data} = await HttpInterceptor.post('/storage/upload', payload)
             await HttpInterceptor.put(data.url, file, options)
-            console.log('hello')
-            socket.emit("attachment", {
+
+            const remoteMetaData = {
+                file: {
+                    path: path,
+                    type: file.type
+                }
+            }
+
+            const localMetaData = {
+                file: {
+                    path: url,
+                    type: file.type
+                }
+            }
+
+            const attachmentPayload = {
                 from: session,
                 to: id,
                 message: filename,
-                file: {
-                    path, 
-                    type: file.type
-                }
-            })
+            }
+            setChats((prev: any) => [...prev, {...attachmentPayload, ...localMetaData}])
+        socket.emit("attachment", {...attachmentPayload, ...remoteMetaData})
             
         } catch (err) {
             CatchError(err)
         }
     }
 
-    const download = async (path: string) => {
+    const download = async (filename: string) => {
         try {
-            const filename: any = path.split("/").pop()
+            const path = `chats/${filename}`
             const {data} = await HttpInterceptor.post('/storage/download', {path})
             const a = document.createElement("a")
             a.href = data.url
@@ -167,7 +180,7 @@ const Chat = () => {
                                         {
                                             item.file && 
                                             <div>
-                                                <SmallButton onClick={() => download(item.file.path)} icon="download-line" type="success">Download</SmallButton>
+                                                <SmallButton onClick={() => download(item.message)} icon="download-line" type="success">Download</SmallButton>
                                             </div>
                                         }
                                         <div className="text-gray-400 text-right text-sm">
