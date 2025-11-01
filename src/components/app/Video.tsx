@@ -1,16 +1,30 @@
-import { useContext, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import CatchError from "../../lib/CatchError"
 import Button from "../shared/Button"
 import Context from "../../Context"
 import { toast } from "react-toastify"
+import socket from "../../lib/socket"
+import { useParams } from "react-router-dom"
+import { notification } from "antd"
+import '@ant-design/v5-patch-for-react-19'
+
+const config = {
+    iceServers: [
+        { urls: "stun:stun.l.google.com:19302" }
+    ]
+} 
 
 const Video = () => {
     const {session} = useContext(Context)
+    const {id} = useParams()
+    const [notify, notifyUi] = notification.useNotification()
+
     const localVideoContainerRef = useRef<HTMLDivElement | null>(null)
     const localVideoRef = useRef<HTMLVideoElement | null>(null)
     const remoteVideoContainerRef = useRef<HTMLDivElement | null>(null)
     const remoteVideoRef = useRef<HTMLVideoElement | null>(null)
     const localStreamRef = useRef<MediaStream | null>(null)
+    const rtc= useRef<RTCPeerConnection | null>(null)
 
     const [isVideoSharing, setIsVideoSharing] = useState(false)
     const [isScreenSharing, setIsScreenSharing] = useState(false)
@@ -19,7 +33,6 @@ const Video = () => {
     const toggleScreen = async () => {
         try {
             const localVideo = localVideoRef.current
-
             if(!localVideo)
                 return 
 
@@ -33,7 +46,6 @@ const Video = () => {
                 const localStream = localStreamRef.current
                 if(!localStream)
                     return 
-
                 localStream.getTracks().forEach((track) => {
                     track.stop()
                 })
@@ -49,13 +61,11 @@ const Video = () => {
     const toggleVideo = async () => {
         try {
             const localVideo = localVideoRef.current
-    
             if(!localVideo)
                 return
 
             if(!isVideoSharing) {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        
                 localVideo.srcObject = stream
                 localStreamRef.current = stream
                 setIsVideoSharing(true)
@@ -85,12 +95,10 @@ const Video = () => {
                 return
 
             const audioTrack = localStream.getTracks().find((tracks) => tracks.kind === "audio")
-
             if(audioTrack) {
                 audioTrack.enabled = !audioTrack.enabled
                 setIsMic(audioTrack.enabled)
             }
-            
         } catch (err) {
             CatchError(err)
         }
@@ -110,12 +118,74 @@ const Video = () => {
 
             } else {
                 document.exitFullscreen()
-            }
-            
+            } 
         } catch (err) {
             CatchError(err)
         }
     }
+
+    const webRtcConnection = () => { 
+        rtc.current = new RTCPeerConnection(config)
+        const localStream = localStreamRef.current
+        if(!localStream)
+            return
+        rtc.current.onicecandidate = (e) => {
+            console.log(e.candidate)
+        }
+
+        rtc.current.onconnectionstatechange = () => {
+            console.log(rtc.current?.connectionState)
+        }
+
+        rtc.current.ontrack = () => {
+            console.log("Something is comming from remote user")
+        }
+
+        localStream.getTracks().forEach((track) => {
+            rtc.current?.addTrack(track, localStream)
+        })
+    }
+
+    const startCall = async () => {
+        try {
+            if(!isVideoSharing && !isScreenSharing) 
+                return toast("Start your video first", {position: "top-center"})
+
+            webRtcConnection()
+
+            if(!rtc.current)
+                return
+
+            const offer = await rtc.current.createOffer()
+            await rtc.current.setLocalDescription(offer)
+            socket.emit("offer", {offer, to: id}) 
+
+        } catch (err) {
+            CatchError(err)
+        }
+    }
+
+    const endCall = () => {
+        alert()
+    }
+
+    // Event Listeners
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onOffer = (payload: any) => {
+        notification.open({
+            message: "Er saurav",
+            description: "Incomming call",
+            duration: 30,
+            placement: "bottomRight"
+        })
+    }
+    useEffect(() => {
+        socket.on("offer", onOffer)
+
+        return () => {
+            socket.off("offer", onOffer)
+        }
+    }, [])
 
     return (
         <div className="space-y-8">
@@ -185,12 +255,15 @@ const Video = () => {
                             <i className="ri-tv-2-line"></i>
                             : 
                             <i className="ri-chat-off-line"></i>
-
                         }
                     </button>
                 </div>
-                <Button icon="close-circle-fill" type="danger">End</Button>
+                <div className="space-x-4">
+                    <Button icon="phone-line" type="success" onClick={startCall}>Call</Button>
+                    <Button icon="close-circle-fill" type="danger" onClick={endCall}>End</Button>
+                </div>
             </div>
+            { notifyUi }
         </div>
     )
 }
