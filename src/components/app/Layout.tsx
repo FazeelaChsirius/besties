@@ -208,7 +208,7 @@ const Layout = () => {
                     !isBlacklisted &&
                     <FriendsRequest />
                 } */}
-                <div className="flex-1">
+                <div className="flex-1 order-2 lg:order-1">
                     <Card 
                         title = {
                             <div className="flex items-center gap-4">
@@ -232,7 +232,7 @@ const Layout = () => {
                     !isBlacklisted &&
                     <FriendsSuggestion />
                 } */}
-                <aside className="bg-white lg:w-[450px] lg:pr-6">
+                <aside className="bg-white lg:w-[450px] lg:pr-6 order-1 lg:order-1">
                     <FriendsOnline />
                 </aside>
             </section>
