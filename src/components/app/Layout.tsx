@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
 import { useContext, useEffect, useState } from "react"
@@ -20,9 +20,12 @@ const EightMinuteInMs = 8*60*1000
 
 const Layout = () => { 
     const isMobile = useMediaQuery({ query: '(max-width: 1224px)' })
+    const {session, setSession, liveActiveSession} = useContext(Context)
     const{ pathname } = useLocation()
     const navigate = useNavigate()
-    const {session, setSession} = useContext(Context)
+    const params = useParams()
+    const paramsArray = Object.keys(params)
+
     // const {error} = useSWR('/auth/refresh-token', Fetcher, {
     //     refreshInterval: EightMinuteInMs,
     //     shouldRetryOnError: false
@@ -51,7 +54,6 @@ const Layout = () => {
      
     const [leftAsideSize, setLeftAsideSide] = useState(0)
     const [collapseSize, setCollapseSize] = useState(0)
-    const rightAsideSize = 450
 
     const menus = [
         {
@@ -120,6 +122,23 @@ const Layout = () => {
                 console.log(err)
             }
         }
+    }
+
+    const ActiveSessionUi = () => {
+        if(!liveActiveSession) {
+            navigate("/app")
+            return
+        }
+
+        return (
+            <div className="flex gap-3">
+                <img src={liveActiveSession.image || "/images/girl.png"} className="w-12 h-12 rounded-full object-cover" />
+                <div className="flex flex-col">
+                    <h1 className="font-medium capitalize">{liveActiveSession.fullname}</h1>
+                    <label className="text-xs text-green-400">Online</label>
+                </div>
+            </div>
+        )
     }
 
     // const download = async () => {
@@ -218,7 +237,7 @@ const Layout = () => {
                                 >
                                     <i className="ri-arrow-left-line"></i>
                                 </button>
-                                <h1>{getPathname(pathname)}</h1>
+                                <h1>{paramsArray.length === 0 ? getPathname(pathname) : <ActiveSessionUi />}</h1>
                             </div>
                         }
                         divider 

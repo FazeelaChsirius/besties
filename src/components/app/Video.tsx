@@ -4,8 +4,8 @@ import Button from "../shared/Button"
 import Context from "../../Context"
 import { toast } from "react-toastify"
 import socket from "../../lib/socket"
-import { useParams } from "react-router-dom"
-import { notification } from "antd"
+import { useNavigate, useParams } from "react-router-dom"
+import { Modal, notification } from "antd"
 import '@ant-design/v5-patch-for-react-19'
 
 const config = {
@@ -15,7 +15,8 @@ const config = {
 } 
 interface OnOfferInterface {
     offer: RTCSessionDescriptionInit
-    from: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    from: any
 }
 interface OnAnswerInterface {
     answer: RTCSessionDescriptionInit
@@ -27,6 +28,7 @@ interface OnCandidateInterface {
 }
 
 type CallType = "pending" | "calling" | "incomming" | "talking" | "end"
+type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3"
 
 function getCallTiming(seconds: number): string {
   const hrs = Math.floor(seconds / 3600)
@@ -42,10 +44,11 @@ function getCallTiming(seconds: number): string {
   return `${hrs}:${mins}:${secs}`;
 }
 
-
 const Video = () => {
-    const {session} = useContext(Context)
+    const navigate = useNavigate()
     const {id} = useParams()
+    const [open, setOpen] = useState(false)
+    const {session, liveActiveSession} = useContext(Context)
     const [notify, notifyUi] = notification.useNotification()
 
     const localVideoContainerRef = useRef<HTMLDivElement | null>(null)
@@ -61,6 +64,27 @@ const Video = () => {
     const [isMic, setIsMic] = useState(false)
     const [status, setStatus] = useState<CallType>("pending")
     const [timer, setTimer] = useState(0)
+
+    const stopAudio = () => {
+        if(!audio.current)
+            return 
+        const player = audio.current
+        player.pause()
+        player.currentTime = 0
+    }
+
+    const playAudio = (src: AudioSrcType, loop: boolean = false) => {
+        stopAudio()
+
+        if(!audio.current)
+            audio.current = new Audio()
+
+        const player = audio.current
+        player.src = src
+        player.loop = loop
+        player.load()
+        player.play()
+    }
 
     const toggleScreen = async () => {
         try {
@@ -214,16 +238,18 @@ const Video = () => {
             const offer = await rtc.current.createOffer()
             await rtc.current.setLocalDescription(offer)
             setStatus("calling")
+            playAudio("/sound/ring.mp3", true)
             notify.open({
-                message: "Riya Kumar",
+                message: <h1 className="font-medium capitalize">{liveActiveSession.fullname}</h1>,
                 description: "Calling...",
                 duration: 30,
                 placement: "bottomRight",
+                onClose: stopAudio,
                 actions: [
-                    <button key="end" className="bg-rose-400 px-3 py-1 rounded text-white hover:bg-rose-500" onClick={endCall}>End Call</button>
+                    <button key="end" className="bg-rose-400 px-3 py-1 rounded text-white hover:bg-rose-500" onClick={endCallFromLocal}>End Call</button>
                 ]
             })
-            socket.emit("offer", {offer, to: id}) 
+            socket.emit("offer", {offer, to: id, from: session}) 
 
         } catch (err) {
             CatchError(err)
@@ -245,6 +271,7 @@ const Video = () => {
 
             notify.destroy()
             setStatus("talking")
+            stopAudio()
             socket.emit("answer", {answer, to: id})
             
         } catch (err) {
@@ -252,29 +279,53 @@ const Video = () => {
         }
     }
 
+    const redirectOnCallEnd = () => {
+        setOpen(false)
+        navigate("/app")
+    }
+
+    const endStreaming = () => {
+        localStreamRef.current?.getTracks().forEach((track) => track.stop())
+
+        if(localVideoRef.current)
+            localVideoRef.current.srcObject = null
+
+        if(remoteVideoRef.current)
+            remoteVideoRef.current.srcObject = null
+    }
+
     // To end call on local computer
-    const endCall = () => {
+    const endCallFromLocal = () => {
         setStatus("end")
+        playAudio("/sound/reject.mp3")
+        notify.destroy()
         socket.emit("end", {to: id})
+        endStreaming()
+        setOpen(true)
     }
 
     // To end call on remote computer
-    const onEnd = () => {
-        endCall()
+    const onEndCallRemote = () => {
+        setStatus("end")
+        notify.destroy()
+        playAudio("/sound/reject.mp3")
+        endStreaming()
+        setOpen(true)
     }
 
     // Event Listeners
     const onOffer = (payload: OnOfferInterface) => {
+       
         setStatus("incomming")
         notify.open({
-            message: "Er saurav",
+            message: <h1 className="font-medium capitalize">{payload.from.fullname}</h1>,
             description: "Incomming call",
             duration: 30,
             placement: "bottomRight",
             actions: [
                 <div key="calls" className="space-x-4">
                     <button className="bg-green-400 px-3 py-1 rounded text-white hover:bg-green-500" onClick={() => accept(payload)}>Accept</button>
-                    <button className="bg-rose-400 px-3 py-1 rounded text-white hover:bg-rose-500" onClick={endCall}>Reject</button>
+                    <button className="bg-rose-400 px-3 py-1 rounded text-white hover:bg-rose-500" onClick={endCallFromLocal}>Reject</button>
                 </div>
             ]
         })
@@ -303,6 +354,7 @@ const Video = () => {
             await rtc.current.setRemoteDescription(answer)
 
             setStatus("talking")
+            stopAudio()
             notify.destroy()
 
         } catch (err) {
@@ -315,65 +367,38 @@ const Video = () => {
         socket.on("offer", onOffer)
         socket.on("candidate", onCandidate)
         socket.on("answer", onAnswer)
-        socket.on("end", onEnd)
+        socket.on("end", onEndCallRemote)
 
         return () => {
             socket.off("offer", onOffer)
             socket.off("candidate", onCandidate)
             socket.off("answer", onAnswer)
-            socket.off("end", onEnd)
+            socket.off("end", onEndCallRemote)
         }
     }, [])
 
-    // Control sound
     useEffect(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let interval: any
-        if(status === "pending")
-            return 
-
-        if(!audio.current) {
-            clearInterval(interval)
-            audio.current = new Audio()
-        }
-
-        if(status === "calling" || status === "incomming") {
-            clearInterval(interval)
-            audio.current.pause()
-            audio.current.src = "/sound/ring.mp3"
-            audio.current.currentTime = 0
-            audio.current.load()
-            audio.current.play()
-        }
 
         if(status === "talking") {
-            clearInterval(interval)
-            audio.current.pause()
-            audio.current.currentTime = 0
             interval = setInterval(() => {
-                setTimer((prev) => prev+1)
+                setTimer((prev) => prev + 1)
+
             }, 1000)
         }
 
-        if(status === "end") {
-            clearInterval(interval)
-            audio.current.pause()
-            audio.current.src = "/sound/reject.mp3"
-            audio.current.currentTime = 0
-            audio.current.load()
-            audio.current.play()
-            notify.destroy()
-        }
-
         return () => {
-            if(audio.current) {
-                audio.current.pause()
-                audio.current.currentTime = 0
-                audio.current = null
-            }
             clearInterval(interval)
         }
     }, [status])
+
+    useEffect(() => {
+        if(!liveActiveSession) {
+            endCallFromLocal()
+        }
+
+    }, [liveActiveSession])
 
     return (
         <div className="space-y-8">
@@ -457,10 +482,16 @@ const Video = () => {
                     }
                     {
                         status === "talking" &&
-                        <Button icon="close-circle-line" type="danger" onClick={endCall}>End</Button>
+                        <Button icon="close-circle-line" type="danger" onClick={endCallFromLocal}>End</Button>
                     }
                 </div>
             </div>
+            <Modal open={open} footer={null} centered maskClosable onCancel={redirectOnCallEnd}>
+                <div className="text-center space-y-4">
+                    <h1 className="text-2xl font-semibold">Call Ended</h1>
+                    <Button type="danger" onClick={redirectOnCallEnd}>Thank you !</Button>
+                </div>
+            </Modal>
             { notifyUi }
         </div>
     )
