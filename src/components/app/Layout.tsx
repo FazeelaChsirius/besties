@@ -223,10 +223,6 @@ const Layout = () => {
                     transition: '0.2s'
                 }}
             >
-                {/* {
-                    !isBlacklisted &&
-                    <FriendsRequest />
-                } */}
                 <div className="flex-1 order-2 lg:order-1">
                     <Card 
                         title = {
@@ -247,11 +243,9 @@ const Layout = () => {
                         }
                     </Card>
                 </div>
-                {/* {
-                    !isBlacklisted &&
+                <aside className="bg-white lg:w-[450px] lg:pr-6 order-1 lg:order-1 flex flex-col gap-8">
+                    <FriendsRequest />
                     <FriendsSuggestion />
-                } */}
-                <aside className="bg-white lg:w-[450px] lg:pr-6 order-1 lg:order-1">
                     <FriendsOnline />
                 </aside>
             </section>
