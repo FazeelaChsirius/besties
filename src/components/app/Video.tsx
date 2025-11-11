@@ -15,7 +15,6 @@ const config = {
 } 
 interface OnOfferInterface {
     offer: RTCSessionDescriptionInit
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     from: any
 }
 interface OnAnswerInterface {
@@ -315,7 +314,6 @@ const Video = () => {
 
     // Event Listeners
     const onOffer = (payload: OnOfferInterface) => {
-       
         setStatus("incomming")
         notify.open({
             message: <h1 className="font-medium capitalize">{payload.from.fullname}</h1>,
@@ -378,7 +376,6 @@ const Video = () => {
     }, [])
 
     useEffect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let interval: any
 
         if(status === "talking") {
