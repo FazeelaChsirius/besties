@@ -9,12 +9,10 @@ const FriendsOnline = () => {
     const {session, setLiveActiveSession} = useContext(Context)
     const navigate = useNavigate()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onlineHandler = (users: any) => {
         setOnlineUsers(users)
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const generateActiveSession = (url: string, user: any) => {
         setLiveActiveSession(user)
         navigate(url)
@@ -32,7 +30,6 @@ const FriendsOnline = () => {
         <Card title="Online friends" divider>
             <div className="space-y-6">
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     session && onlineUsers.filter((item: any) => item.id !== session.id).map((item: any, index) => (
                         <div key={index} className="flex">
                             <div className="flex gap-3">
@@ -53,7 +50,6 @@ const FriendsOnline = () => {
                                     </div>
                                 </div>
                             </div>
-                            
                         </div>
                     ))
                 }
