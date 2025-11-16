@@ -19,10 +19,10 @@ const Signup = () => {
   }
   return (
     <div className="bg-gray-100 flex items-center justify-center h-screen">
-      <div className="w-6/12 animate__animated animate__fadeIn">
+      <div className="lg:w-6/12 animate__animated animate__fadeIn">
       <Card noPadding>
-        <div className="grid grid-cols-2">
-          <div className="p-8 space-y-6">
+        <div className="grid lg:grid-cols-2">
+          <div className="p-8 space-y-6 lg:order-1 order-2">
             <div>
               <h1 className="text-xl font-bold text-black">Sign up</h1>
               <p className="text-gray-500">Start your first chat now !</p>
@@ -52,7 +52,7 @@ const Signup = () => {
               <Link to='/login' className="text-green-400 font-medium hover:underline">Sign in</Link>
             </div>
           </div>
-          <div className="overflow-hidden h-[500px] bg-linear-to-t from-sky-500 to-indigo-500 rounded-r-xl flex justify-center items-center">
+          <div className="lg:order-2 order-1 overflow-hidden lg:h-[500px] h-[180px] bg-linear-to-t from-sky-500 to-indigo-500 rounded-r-xl flex justify-center items-center">
             <img 
               src="/images/signup.svg" 
               alt="auth" 

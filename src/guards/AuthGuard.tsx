@@ -16,7 +16,6 @@ const AuthGuard = () => {
         try {
             const {data} = await HttpInterceptor.get('/auth/session')
             setSession(data)
-            console.log(data)
             
         } catch (err: unknown) {
             setSession(false)

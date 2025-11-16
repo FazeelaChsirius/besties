@@ -10,7 +10,6 @@ import HttpInterceptor from '../../../lib/HttpInterceptor'
 
 const FriendsRequest = () => {
   const {data, error, isLoading} = useSWR('/friend/request', Fetcher)
-  console.log('frient request', data)
 
   if(isLoading)
     return <Skeleton />

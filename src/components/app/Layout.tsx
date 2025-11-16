@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import Dashboard from "./Dashboard"
 import Context from "../../Context"
 import HttpInterceptor from "../../lib/HttpInterceptor"
@@ -15,45 +15,115 @@ import { useMediaQuery } from 'react-responsive'
 import Logo from "../shared/Logo"
 import IconButton from "../shared/IconButton"
 import FriendsOnline from "./friend/FriendsOnline"
+import { AudioSrcType, OnOfferInterface } from "./Video"
+import socket from "../../lib/socket"
+import { notification } from "antd"
 
 const EightMinuteInMs = 8*60*1000
 
 const Layout = () => { 
+    const [leftAsideSize, setLeftAsideSide] = useState(0)
+    const [collapseSize, setCollapseSize] = useState(0)
     const isMobile = useMediaQuery({ query: '(max-width: 1224px)' })
-    const {session, setSession, liveActiveSession} = useContext(Context)
+    const {session, setSession, liveActiveSession, setLiveActiveSession, setSdp} = useContext(Context)
     const{ pathname } = useLocation()
     const navigate = useNavigate()
     const params = useParams()
     const paramsArray = Object.keys(params)
+    const audio = useRef<HTMLAudioElement | null>(null)
+    const [notify, notifyUi] = notification.useNotification()
 
-    // const {error} = useSWR('/auth/refresh-token', Fetcher, {
-    //     refreshInterval: EightMinuteInMs,
-    //     shouldRetryOnError: false
-    // })
+    const {error} = useSWR('/auth/refresh-token', Fetcher, {
+        refreshInterval: EightMinuteInMs,
+        shouldRetryOnError: false
+    })
 
-    const friendsUiBlacklist = [
-        "/app/friends",
-        "/app/chat",
-        "/app/audio-chat",
-        "/app/video-chat"
-    ]
+    // const friendsUiBlacklist = [
+    //     "/app/friends",
+    //     "/app/chat",
+    //     "/app/audio-chat",
+    //     "/app/video-chat"
+    // ]
+    // const isBlacklisted = friendsUiBlacklist.some((path) => pathname === path)
+
+    const onOffer = (payload: OnOfferInterface)=>{
+        setSdp(payload)
+        setLiveActiveSession(payload.from)
+        navigate(`/app/video-chat/${payload.from.socket}`)
+
+        if(payload.type === "video")
+            return navigate(`/app/video-chat/${payload.from.socketId}`)
+
+        if(payload.type === "audio")
+            return navigate(`/app/audio-chat/${payload.from.socketId}`)
+    }
+
+    const stopAudio = () => {
+        if(!audio.current)
+            return 
+        const player = audio.current
+        player.pause()
+        player.currentTime = 0
+    }
     
-    const isBlacklisted = friendsUiBlacklist.some((path) => pathname === path)
-    console.log(isBlacklisted)
-    // useEffect(() => {
-    //     if(error) {
-    //         logout()
-    //     }
+    const playAudio = (src: AudioSrcType, loop: boolean = false) => {
+        stopAudio()
+        if(!audio.current)
+            audio.current = new Audio()
 
-    // }, [error])
+        const player = audio.current
+        player.src = src
+        player.loop = loop
+        player.load()
+        player.play()
+    }
 
+    const startChat = (payload: any) => {
+        notify.destroy()
+        setLiveActiveSession(payload.from)
+        navigate(`/app/chat/${payload.from.id}`)
+    }
+
+    const onMessage = (payload: any) => {
+        if(location.href.includes("/app/chat"))
+            return 
+
+        playAudio("/sound/chat.mp3")
+        notify.open({
+            message: <h1 className="font-medium capitalize">{payload.from.fullname}</h1>,
+            description: payload.message,
+            placement: "bottomRight",
+            duration: 30,
+            actions: [
+                <button 
+                    onClick={() => startChat(payload)}
+                    key="chat"
+                    className="bg-green-400 hover:bg-green-500 text-white rounded px-6 py-2"
+                >
+                    Start chat
+                </button>
+            ]
+        })
+    }
+
+    useEffect(() => {
+        if(error) {
+            logout()
+        }
+    }, [error])
+
+    useEffect(() => {
+        socket.on("offer", onOffer)
+        socket.on("message", onMessage)
+        return () => {
+            socket.off("offer", onOffer)
+            socket.off("message", onMessage)
+        }
+    }, [])
     useEffect(() => {
         setLeftAsideSide(isMobile ? 0 : 350)
         setCollapseSize(isMobile ? 0 : 140)
     }, [isMobile])
-     
-    const [leftAsideSize, setLeftAsideSide] = useState(0)
-    const [collapseSize, setCollapseSize] = useState(0)
 
     const menus = [
         {
@@ -77,7 +147,7 @@ const Layout = () => {
         try {
             await HttpInterceptor.post('/auth/logout')
             navigate('/login')
-            
+
         } catch (err) {
             CatchError(err)
         }
@@ -119,7 +189,7 @@ const Layout = () => {
                 mutate('/auth/refresh-token')
                 
             } catch (err) {
-                console.log(err)
+                CatchError(err)
             }
         }
     }
@@ -129,7 +199,6 @@ const Layout = () => {
             navigate("/app")
             return
         }
-
         return (
             <div className="flex gap-3">
                 <img src={liveActiveSession.image || "/images/girl.png"} className="w-12 h-12 rounded-full object-cover" />
@@ -248,6 +317,7 @@ const Layout = () => {
                     <FriendsSuggestion />
                     <FriendsOnline />
                 </aside>
+                {notifyUi}
             </section>
         </div>
     )

@@ -9,7 +9,6 @@ import Layout from "./components/app/Layout"
 import Dashboard from "./components/app/Dashboard"
 import Post from "./components/app/Post"
 import Video from "./components/app/Video"
-import Audio from "./components/app/Audio"
 import Chat from "./components/app/Chat"
 import NotFound from "./components/NotFound"
 import Context from "./Context"
@@ -19,13 +18,16 @@ import { useState } from "react"
 import AuthGuard from "./guards/AuthGuard"
 import RedirectGuard from "./guards/RedirectGuard"
 import FriendsList from "./components/app/friend/FriendsList"
+import AudioChat from "./components/app/Audio"
+import Audio from "./components/app/Audio"
 
 const App = () => {
   const [session, setSession] = useState(null)
   const [liveActiveSession, setLiveActiveSession] = useState(null)
+  const [sdp, setSdp] = useState(null)
 
   return (
-    <Context.Provider value={{session, setSession, liveActiveSession, setLiveActiveSession}}>
+    <Context.Provider value={{session, setSession, liveActiveSession, setLiveActiveSession, sdp, setSdp}}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
