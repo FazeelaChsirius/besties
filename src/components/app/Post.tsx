@@ -60,7 +60,6 @@ const Post = () => {
         }
         const {data} = await HttpInterceptor.post('/storage/upload', payload)
         await HttpInterceptor.put(data.url, fileData.file, options)
-        console.log("Success")
       }
 
       const formData = {

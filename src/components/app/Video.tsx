@@ -7,27 +7,23 @@ import socket from "../../lib/socket"
 import { useNavigate, useParams } from "react-router-dom"
 import { Modal, notification } from "antd"
 import '@ant-design/v5-patch-for-react-19'
-
-const config = {
-    iceServers: [
-        { urls: "stun:stun.l.google.com:19302" }
-    ]
-} 
-interface OnOfferInterface {
+import HttpInterceptor from "../../lib/HttpInterceptor" 
+export interface OnOfferInterface {
     offer: RTCSessionDescriptionInit
     from: any
+    type: 'video' | 'audio' | 'chat'
 }
-interface OnAnswerInterface {
+export interface OnAnswerInterface {
     answer: RTCSessionDescriptionInit
     from: string
 }
-interface OnCandidateInterface {
+export interface OnCandidateInterface {
     candidate: RTCIceCandidateInit
     from: string
 }
 
-type CallType = "pending" | "calling" | "incomming" | "talking" | "end"
-type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3"
+export type CallType = "pending" | "calling" | "incomming" | "talking" | "end"
+export type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3" | "/sound/chat.mp3"
 
 function getCallTiming(seconds: number): string {
   const hrs = Math.floor(seconds / 3600)
@@ -39,15 +35,13 @@ function getCallTiming(seconds: number): string {
   const secs = Math.floor(seconds % 60)
     .toString()
     .padStart(2, '0');
-
   return `${hrs}:${mins}:${secs}`;
 }
 
 const Video = () => {
     const navigate = useNavigate()
     const {id} = useParams()
-    const [open, setOpen] = useState(false)
-    const {session, liveActiveSession} = useContext(Context)
+    const {session, liveActiveSession, sdp, setSdp} = useContext(Context)
     const [notify, notifyUi] = notification.useNotification()
 
     const localVideoContainerRef = useRef<HTMLDivElement | null>(null)
@@ -58,6 +52,7 @@ const Video = () => {
     const rtc= useRef<RTCPeerConnection | null>(null)
     const audio = useRef<HTMLAudioElement | null>(null)
 
+    const [open, setOpen] = useState(false)
     const [isVideoSharing, setIsVideoSharing] = useState(false)
     const [isScreenSharing, setIsScreenSharing] = useState(false)
     const [isMic, setIsMic] = useState(false)
@@ -74,7 +69,6 @@ const Video = () => {
 
     const playAudio = (src: AudioSrcType, loop: boolean = false) => {
         stopAudio()
-
         if(!audio.current)
             audio.current = new Audio()
 
@@ -93,10 +87,28 @@ const Video = () => {
 
             if(!isScreenSharing) {
                 const stream = await navigator.mediaDevices.getDisplayMedia({ video: true })
+                const screenShareTrack = stream.getVideoTracks()[0]
+                const senderVideoTrack = rtc.current?.getSenders().find((s) => s.track?.kind === "video")
+                if(screenShareTrack && senderVideoTrack) {
+                    await senderVideoTrack.replaceTrack(screenShareTrack)
+                }
                 localVideo.srcObject = stream
                 localStreamRef.current = stream
                 setIsScreenSharing(true)
 
+                // Detect screen sharing off
+                screenShareTrack.onended = async () => {
+                    setIsScreenSharing(false)
+                    const videoCamStream = await navigator.mediaDevices.getUserMedia({video: true})
+                    const videoTrack = videoCamStream.getVideoTracks()[0]
+                    const senderTrack = rtc.current?.getSenders().find((s) => s.track?.kind === "video")
+                    if(videoTrack && senderTrack) {
+                        await senderTrack.replaceTrack(videoTrack)
+                    }
+                    localVideo.srcObject = videoCamStream
+                    localStreamRef.current = videoCamStream
+                    setIsScreenSharing(true)
+                }
             } else {
                 const localStream = localStreamRef.current
                 if(!localStream)
@@ -179,8 +191,9 @@ const Video = () => {
         }
     }
 
-    const webRtcConnection = () => { 
-        rtc.current = new RTCPeerConnection(config)
+    const webRtcConnection = async () => { 
+        const {data} = await HttpInterceptor.get("/twilio/turn-server")
+        rtc.current = new RTCPeerConnection({iceServers: data})
         const localStream = localStreamRef.current
 
         if(!localStream)
@@ -229,8 +242,7 @@ const Video = () => {
             if(!isVideoSharing && !isScreenSharing) 
                 return toast("Start your video first", {position: "top-center"})
 
-            webRtcConnection()
-
+            await webRtcConnection()
             if(!rtc.current)
                 return
 
@@ -248,7 +260,7 @@ const Video = () => {
                     <button key="end" className="bg-rose-400 px-3 py-1 rounded text-white hover:bg-rose-500" onClick={endCallFromLocal}>End Call</button>
                 ]
             })
-            socket.emit("offer", {offer, to: id, from: session}) 
+            socket.emit("offer", {offer, to: id, from: session, type: 'video'}) 
 
         } catch (err) {
             CatchError(err)
@@ -257,7 +269,8 @@ const Video = () => {
 
     const accept = async (payload: OnOfferInterface) => {
         try {
-            webRtcConnection()
+            setSdp(null)
+            await webRtcConnection()
 
             if(!rtc.current)
                 return
@@ -381,10 +394,8 @@ const Video = () => {
         if(status === "talking") {
             interval = setInterval(() => {
                 setTimer((prev) => prev + 1)
-
             }, 1000)
         }
-
         return () => {
             clearInterval(interval)
         }
@@ -394,8 +405,18 @@ const Video = () => {
         if(!liveActiveSession) {
             endCallFromLocal()
         }
-
     }, [liveActiveSession])
+
+    // Detect comming offer
+    useEffect(() => {
+        if(sdp) {
+            notify.destroy()
+            onOffer(sdp)
+        }
+    }, [])
+
+    if(!liveActiveSession)
+        return navigate("/app")
 
     return (
         <div className="space-y-8">
@@ -405,7 +426,7 @@ const Video = () => {
                     className="absolute bottom-5 left-5 text-xs px-2 py-1 rounded-lg text-white"  
                     style={{ background: 'rgba(0, 0, 0, 0.7)' }}
                 >
-                    Rahul kumar
+                    {liveActiveSession.fullname}
                 </button>
                 <button 
                     onClick={() => toggleFullScreen("remote")}
@@ -418,7 +439,7 @@ const Video = () => {
 
             <div className="grid grid-cols-3 gap-4">
                 <div ref={localVideoContainerRef} className="bg-black w-full h-0 relative pb-[56.25%] rounded-xl">
-                    <video ref={localVideoRef} className="w-full h-full absolute top-0 left-0" autoPlay playsInline></video>
+                    <video ref={localVideoRef} muted className="w-full h-full absolute top-0 left-0" autoPlay playsInline></video>
                     <button 
                         className="absolute capitalize bottom-2 left-2 text-xs px-2 py-1 rounded-lg text-white"  
                         style={{ background: 'rgba(0, 0, 0, 0.7)' }}

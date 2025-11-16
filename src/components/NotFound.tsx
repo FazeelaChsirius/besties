@@ -1,5 +1,4 @@
-
-import { Link } from 'react-router-dom'; // Remove if you're not using react-router
+import { Link } from 'react-router-dom'
 
 const NotFound = () => {
   return (
