@@ -1,13 +1,13 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Empty, Skeleton } from 'antd';
 import Card from '../../shared/Card';
+import { toast } from 'react-toastify';
 import 'swiper/css';
 import SmallButton from '../../shared/SmallButton';
 import useSWR, { mutate } from 'swr';
 import Fetcher from '../../../lib/Fetcher';
-import { Empty, Skeleton } from 'antd';
 import CatchError from '../../../lib/CatchError';
 import HttpInterceptor from '../../../lib/HttpInterceptor';
-import { toast } from 'react-toastify';
 
 const FriendsSuggestion = () => {
   const {data, isLoading, error} = useSWR('/friend/suggestion', Fetcher)

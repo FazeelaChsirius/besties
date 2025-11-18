@@ -1,23 +1,23 @@
 import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
+import { useContext, useEffect, useRef, useState } from "react"
+import {v4 as uuid} from "uuid"
+import useSWR, { mutate } from 'swr'
+import { useMediaQuery } from 'react-responsive'
+import { AudioSrcType, OnOfferInterface } from "./Video"
+import { notification } from "antd"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
-import { useContext, useEffect, useRef, useState } from "react"
 import Dashboard from "./Dashboard"
 import Context from "../../Context"
 import HttpInterceptor from "../../lib/HttpInterceptor"
-import {v4 as uuid} from "uuid"
-import useSWR, { mutate } from 'swr'
 import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
 import FriendsSuggestion from "./friend/FriendsSuggestion"
 import FriendsRequest from "./friend/FriendsRequest"
-import { useMediaQuery } from 'react-responsive'
 import Logo from "../shared/Logo"
 import IconButton from "../shared/IconButton"
 import FriendsOnline from "./friend/FriendsOnline"
-import { AudioSrcType, OnOfferInterface } from "./Video"
 import socket from "../../lib/socket"
-import { notification } from "antd"
 
 const EightMinuteInMs = 8*60*1000
 
