@@ -1,15 +1,15 @@
 const env = import.meta.env
 import { useState } from "react"
+import {v4 as uuid} from "uuid"
+import useSWR, { mutate } from "swr"
+import { Card as AntCard, message, Skeleton } from "antd"
 import Button from "../shared/Button"
 import Card from "../shared/Card"
-import { Card as AntCard, message, Skeleton } from "antd"
 import Divider from "../shared/Divider"
 import Editor from "../shared/Editor"
 import HttpInterceptor from "../../lib/HttpInterceptor"
-import {v4 as uuid} from "uuid"
 import CatchError from "../../lib/CatchError"
 import moment from "moment"
-import useSWR, { mutate } from "swr"
 import Fetcher from "../../lib/Fetcher"
 interface FileDataInterface {
   url: string

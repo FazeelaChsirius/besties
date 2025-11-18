@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom"
+import Form, { FormDataType } from "./shared/Form"
 import Button from "./shared/Button"
 import Card from "./shared/Card"
 import Input from "./shared/Input"
-import Form, { FormDataType } from "./shared/Form"
 import HttpInterceptor from "../lib/HttpInterceptor"
 import CatchError from "../lib/CatchError"
 

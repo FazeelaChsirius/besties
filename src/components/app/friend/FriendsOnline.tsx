@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import Card from "../../shared/Card"
 import socket from "../../../lib/socket"
-import { useNavigate } from "react-router-dom"
 import Context from "../../../Context"
 
 const FriendsOnline = () => {
